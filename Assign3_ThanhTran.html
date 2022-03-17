@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+
+	<style type="text/css">
+
+		table{
+			border: 1px solid black;
+			border-collapse: collapse;
+		} */
+
+		th, td{
+			border: 1px solid black;
+			padding: 10px;
+		}
+
+		div {
+			border-radius: 10px;
+		}
+
+		.result, p {
+			position: relative;
+			left: 26.5%;
+			font-family: helvetica;
+		}
+
+		.choices{
+			display: none;
+			background-color: orange;
+			width: 400px;
+			padding: 5px;
+			position: relative;
+			left: 26.5%;
+			font-family: helvetica;
+		}
+
+		.askquestion {
+			display:none;
+			position: relative;
+			left: 26.5%;
+			background-color: skyblue;
+			width: 400px;
+			padding: 5px;
+			font-family: helvetica;
+		}
+
+		ul {
+			list-style: none;
+		}
+
+
+		.buttonNext {
+			display:none;
+			width: 50px;
+			right: 0px;
+			left:26.5%;
+			position: relative;
+			border-radius: 10px;
+			font-family: helvetica;
+		}
+
+		.buttonPrev {
+			display:none;
+			width: 50px;
+			right: 0px;
+			position: relative;
+			left:26.5%;
+			border-radius: 10px;
+			font-family: helvetica;
+		}
+
+	</style>
+
+</head>
+<body>
+<div id="output"></div>
+
+<script type="text/javascript">
+	var score =0;
+	var currentType;
+	var questions = [
+					{	question: '2 × (5 + 7) - 6 + 2 ', type: 2,
+					choices: ['14', '16', '20']},
+					// correct choices[2]
+
+					{	question: 'How do we declare a variable in javascript?', type: 1,
+						choices: ['using the keywords int, double, string etc.', 'there is no need for declaration',
+						'using keyword var', 'you need to call its class object']},
+						// correct choices[2]
+
+					{	question: 'An alternative way to convert decimal to binary is subtracting by power of 2s rather than dividing', type: 2,
+					 	choices: ['true', 'false']},
+						// correct choices[0]
+
+					{	question:'Javascript is an earlier version of Java', type: 2,
+						choices: ['True', 'False']},
+						//correct choices[1]
+
+					{	question: 'What is the hexidecimal conversion of 0111 1110 0010 0100 1111 0000', type: 2,
+						choices: ['5E24F0', '7E2E1', '7E24F0']}
+						//correct chioces[2]
+	];
+
+/* generates a string in order to render the choices Contains radio input with values based on choices (argument) and question number (argument)
+   It's the thing that generates the radio buttons*/
+	function generate_choices(choices, number){
+		var my_choices = '';
+		for (var i = 0; i < choices.length; i++) { /* for each of the choices in the question.choices list, add a radio button */
+			my_choices += `<input type="radio" value="${choices[i]}" name="input_question_${number}"> ${choices[i]}<br/>`;
+		}
+
+		return my_choices;
+
+	}
+
+	/* radio button. */
+	function complex_question(question, number){
+		var my_question = `<div class = "askquestion" id="qsBlock_${number}"><h2>Question ${number+1}: ${question.question} </h2></div>
+											 <div class = "choices" id="choices_${number}">`;
+			my_question += generate_choices(question.choices, number);
+			my_question +=`</div><button onclick="show_hide(${number});" class="buttonNext" id="next_${number}">Next</button>
+													 <button onclick="show_hide2(${number});" class="buttonPrev" id="prev_${number}">Prev</button></div>`;
+
+		return my_question;
+	}
+
+	/* input text */
+		function simple_question(question, number){
+			var my_question = `	<div class = "askquestion" id="qsBlock_${number}"><h2>Question ${number+1}: ${question.question} </h2></div>
+													<div class = "choices" id="choices_${number}">
+													<input type='text' id='input_question_${number}' name='input_question_${number}'>
+													<button onclick="show_hide(${number});" class="buttonNext" id="next_${number}">Next</button>
+													<button onclick="show_hide2(${number});" class="buttonPrev" id="prev_${number}">Prev</button></div>`;
+			return my_question;
+
+		}
+
+	/*Generatres the form based on question type. Question of type 1, get the simple form which contains the text fields
+	  Else, they are considered a complex question and get no text field.*/
+		function generate_question(question, number){
+			if(question.type == 1) {
+				currentType=1;
+				return simple_question(question, number);
+			}
+			else{
+				currentType=2;
+				return complex_question(question, number);
+			}
+		}
+
+	function render_questions(){
+		var my_output = '';
+		for(var i = 0; i < questions.length; i++){ /* for each element in the questions array, generate a question form.*/
+			my_output += generate_question(questions[i], i);
+		}
+
+		my_output += `<div class="result" id="resultID">Total will show up here</div>` /* appends a total? */
+		document.getElementById('output').innerHTML = my_output; /* puts everything rendered in the output div*/
+
+		document.getElementById('choices_0').style.display = 'block'; /* render initial block question at index 0 */
+		document.getElementById('next_0').style.display = 'block';
+		document.getElementById('prev_0').style.display = 'block';
+		document.getElementById('qsBlock_0').style.display = 'block';
+	} // end of function render_questions
+
+/*de-renders and renders the form*/
+
+	function show_hide(number){
+		//if (number==1 || number == 2 || number ==3 ) {}
+		if (currentType == 1) {
+			user_input = document.getElementById(`input_question_${number}`).value;
+			if (number==1 && user_input == "using keyword var") {score++};
+			// else if (number==2 && user_input == "using keyword var") {score++};
+			// else if (number==2 && user_input == "using keyword var") {score++};
+		}
+		var user_input = document.getElementsByName(`input_question_${number}`);
+		var checked_radio = -1;
+
+		for(var i = 0; i < user_input.length; i++){
+			if(user_input[i].checked == 1){
+				checked_radio = i;
+				break;
+			}
+		}
+
+		/*check for input*/
+		// if(checked_radio == -1){
+		// 	document.getElementById('resultID').innerHTML = 'Please select something';
+		// }
+		// else {
+			/*answer checking */
+			if (number==0 && checked_radio==2){
+				score++;
+			}
+		else if (number==1){ //the question is a text field type
+			}
+		else if (number==2 && checked_radio==0){
+				score++;
+			}
+		else if (number==3 && checked_radio==1){
+				score++;
+			}
+		else if (number==4 && checked_radio==2){
+				score++;
+			}
+			console.log(score);
+			// document.write('Your total score is: ');
+
+			/* hide current stuff */
+			document.getElementById('resultID').innerHTML = "Your total score is: " + score;
+			document.getElementById(`qsBlock_${number}`).style.display = 'none';
+			document.getElementById(`choices_${number}`).style.display = 'none';
+			document.getElementById(`next_${number}`).style.display = 'none';
+			document.getElementById(`prev_${number}`).style.display = 'none';
+
+			/* show new stuff */
+			document.getElementById(`qsBlock_${number+1}`).style.display = 'block';
+			document.getElementById(`choices_${number+1}`).style.display = 'block';
+			document.getElementById(`next_${number+1}`).style.display = 'block';
+			document.getElementById(`prev_${number+1}`).style.display = 'block';
+		// }
+
+	}
+	
+/* show previous question */
+	function show_hide2(number){
+			if (number <= 0) {
+				return 0; //button should do nothing if its the first question
+			}
+			else{
+				document.getElementById('resultID').innerHTML = "Your total score is: " + score;
+
+				/*hide current question */
+				document.getElementById(`qsBlock_${number}`).style.display = 'none';
+				document.getElementById(`choices_${number}`).style.display = 'none';
+				document.getElementById(`next_${number}`).style.display = 'none';
+				document.getElementById(`prev_${number}`).style.display = 'none';
+
+				/*show previous question */
+				document.getElementById(`qsBlock_${number-1}`).style.display = 'block';
+				document.getElementById(`choices_${number-1}`).style.display = 'block';
+				document.getElementById(`next_${number-1}`).style.display = 'block';
+				document.getElementById(`prev_${number-1}`).style.display = 'block';
+			}
+		}
+
+	render_questions();
+
+	</script>
+</body>
+</html>
